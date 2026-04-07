@@ -118,7 +118,6 @@ These came from painful experience on a large production system:
 
 - [x] `/project-init` — project scaffolding
 - [x] `/harness-init` — agent infrastructure setup
-- [ ] `/skill-forge` — skill builder (interview → skill.md generation)
 
 ---
 
