@@ -179,6 +179,7 @@ Three questions:
 ### Preset: Trading / Finance
 ```yaml
 tier_0_immutable:
+  - "reject-by-default: missing required field → REJECT. No guessing, no interpolation."
   - "no-action default: uncertain signals or missing data → no trade, no APPROVE"
   - "no fabrication: missing data stays null/0/UNKNOWN — never generate fake prices"
   - "paper-only: no live execution without explicit authorization"
@@ -374,7 +375,7 @@ Each rule above is valid UNLESS:
 - [conditions under which rules should be reconsidered]
 - User explicitly overrides with documented reasoning
 
-## VI. Memory Discipline
+## VI. Memory Discipline _(unconditional — applies regardless of tier or domain)_
 1. Memory is a hint, not a fact.
    MEMORY.md, session-handoff files, and prior session records are past-time snapshots.
    Verify current state before acting.
