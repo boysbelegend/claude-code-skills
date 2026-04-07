@@ -179,12 +179,9 @@ Three questions:
 ### Preset: Trading / Finance
 ```yaml
 tier_0_immutable:
-  - "reject-by-default: missing field → REJECT. No guessing, no interpolation."
-  - "paper-only: no live trade execution. No exchange credentials in code."
-  - "no fabrication: missing data stays null/0/UNKNOWN. Never generate fake prices."
-  - "dual verification: APPROVE requires both technical AND domain validation."
-  - "horizon mandatory: every decision needs day|swing|position timeframe."
-  - "expiry + invalidation: every APPROVE needs both conditions."
+  - "no-action default: uncertain signals or missing data → no trade, no APPROVE"
+  - "no fabrication: missing data stays null/0/UNKNOWN — never generate fake prices"
+  - "paper-only: no live execution without explicit authorization"
 
 tier_1_mandatory:
   - "verification after every code change"
@@ -212,8 +209,6 @@ tier_0_immutable:
   - "no hardcoded secrets: all credentials via environment variables"
   - "no raw SQL: use parameterized queries or ORM only"
   - "input validation on every user-facing endpoint"
-  - "auth-first: no endpoint without authentication unless explicitly public"
-  - "no PII in logs: sanitize before logging"
 
 tier_1_mandatory:
   - "security review before any auth/payment code ships"
@@ -240,7 +235,6 @@ tier_0_immutable:
   - "dry-run default: destructive operations require explicit --force or --confirm"
   - "no silent data loss: always confirm before overwrite/delete"
   - "idempotent operations: running twice produces same result"
-  - "no hardcoded paths: all paths configurable via args or env"
 
 tier_1_mandatory:
   - "verification after every code change"
@@ -264,7 +258,6 @@ memory: structured
 ```yaml
 tier_0_immutable:
   - "no data leakage: train/test split before any transformation"
-  - "reproducibility: random seeds explicit, all transforms versioned"
   - "no fabrication: missing values stay NaN, never impute without documentation"
   - "baseline required: no model result without comparison to naive baseline"
 
