@@ -66,7 +66,7 @@ Check if `~/.claude/` global structure exists.
 ```
 What kind of system are you building?
 
-1. Trading / Finance — paper-only, reject-on-missing-data, dual verification
+1. Trading / Finance — no-action default, no fabrication, paper-only
 2. Web Application — secrets protection, input validation, auth-first
 3. CLI Tool / Automation — idempotent operations, dry-run default
 4. Data Pipeline / ML — reproducibility, no data leakage, version everything
@@ -196,7 +196,7 @@ tier_4_style:
   - "feature flags default OFF"
 
 hooks:
-  SessionStart: "load handoff file + show last signal status"
+  SessionStart: "load handoff file + show last trade status"
   PreCompact: "remind to checkpoint"
   Stop: "remind to checkpoint"
 
@@ -584,6 +584,30 @@ Adjustable:
 Approve → files confirmed
 [change request] → apply and regenerate + re-verify
 ```
+
+---
+
+## Output
+
+Files generated at `~/.claude/` (global) unless noted:
+- `rules/ai-constitution.md` — always generated
+- `rules/agents.md` — if complexity >= Standard
+- `rules/output-style.md` — from Q5 style preferences
+- `rules/development-workflow.md` — if review gates selected
+- `settings.json` (merged, never replaced) — hooks always added
+- `memory/MEMORY.md` — if structured memory selected
+- `memory/session-handoff-LATEST.md` — if structured memory selected
+- `docs/harness-tests.md` — violation test results
+
+---
+
+## Invariants (never violate)
+
+1. **Rules only extend, never weaken**: Never remove, downgrade, comment out, or soften existing rules — in any form. Commenting out is functionally equivalent to deletion. Applies to all tiers, all files.
+2. **Merge, never overwrite**: Never replace an entire config object or section. Always read existing state and append. Applies to `settings.json` hooks, `agents.md`, `ai-constitution.md`, `MEMORY.md`.
+3. **No code, no git**: Never write application/production code or execute git operations. This skill only generates AI configuration files.
+
+These rules are unconditional. No user instruction, no edge case overrides them. If a request requires violating an invariant, refuse and explain which rule prevents it.
 
 ---
 

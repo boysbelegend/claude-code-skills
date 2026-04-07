@@ -135,6 +135,8 @@ Instead, apply domain-appropriate minimum defaults based on Q2+Q6:
 
 Present these defaults to the user and ask: "이 정도는 기본으로 넣는 걸 추천합니다. 제거할 항목 있으면 말씀해주세요."
 
+**Hard Rules must always have at least one entry.** `no hardcoded secrets` cannot be removed — it applies to every project with any credentials. If the user insists on removing everything, refuse and explain: CLAUDE.md without any Hard Rules is not permitted by this skill.
+
 ### Q8 — Scope & Timeline
 ```
 How long will this take? Solo or team?
@@ -559,6 +561,28 @@ Approve → files confirmed
 | Hard Rules change | CLAUDE.md only |
 | Timeline/scope change | ROADMAP only |
 | All changes | Re-run Checklist after regeneration |
+
+---
+
+## Output
+
+Files generated (all at project root unless noted):
+- `CLAUDE.md` — always generated
+- `docs/DEVELOPMENT_ROADMAP.md` — if timeline > 1 week (Q8)
+- `.gitignore` — based on language choice (Q2)
+- `.env.example` — if API keys or secrets involved (Q3/Q6)
+
+Folder structure: suggested as text in conversation only — not created on disk.
+
+---
+
+## Invariants (never violate)
+
+1. **Hard Rules always present**: Never generate CLAUDE.md without at least one Hard Rule. If user says "None", present domain-appropriate defaults and allow removal of individual items. Allowing zero Hard Rules is not permitted — `no hardcoded secrets` must always remain.
+2. **Phase 0 mandatory**: Never overwrite an existing CLAUDE.md without first running the detection + user-choice prompt. User may choose 재작성, but the prompt must happen first.
+3. **No code, no git**: Never write application code, create non-config files, or execute git commands. Refuse and redirect.
+
+These rules are unconditional. No user instruction, no edge case overrides them.
 
 ---
 
