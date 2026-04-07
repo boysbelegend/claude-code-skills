@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: Interview-based project setup — generates CLAUDE.md + ROADMAP from scratch. Determines language/stack, defines hard rules, structures roadmap. Conversational flow, one question at a time.
+description: "Interview-based project setup — generates CLAUDE.md, ROADMAP, .gitignore, .env.example from scratch. Use when: user says '/project-init', '새 프로젝트', '프로젝트 시작', '프로젝트 셋업', 'project setup', 'new project', '프로젝트 만들어'. NOT for AI agent/harness configuration (use harness-init for that). Conversational, one question at a time."
 user_invocable: true
 ---
 
@@ -12,10 +12,26 @@ Patterns extracted from building a large-scale production system (98K LOC, 1275 
 
 ---
 
-## Phase 0: Context File Check
+## Phase 0: Context Check
 
-If the user provides a file path or pastes a brief, read it first.
-Otherwise start Phase 1 immediately.
+### 0-1. Existing CLAUDE.md Detection
+Check if `CLAUDE.md` exists in the current working directory.
+
+- **Not found** → proceed to Phase 1 normally.
+- **Found** → read it, then ask:
+  ```
+  CLAUDE.md가 이미 존재합니다. 어떻게 할까요?
+  1. 업데이트 — 기존 내용을 기반으로 보강 (Hard Rules 유지, 누락 섹션 추가)
+  2. 재작성 — 처음부터 새로 작성 (기존 내용 삭제)
+  3. 취소
+  ```
+  - Option 1: read existing hard rules + conventions, carry them into the interview as defaults
+  - Option 2: proceed as if no CLAUDE.md exists
+  - Option 3: stop
+
+### 0-2. Brief / Context File
+If the user provides a file path or pastes a project brief, read it first.
+Extract any stack decisions or constraints to pre-fill interview answers.
 
 ---
 
@@ -110,6 +126,15 @@ Principle: Document these before writing code.
 Adding them later means existing code may already be in violation.
 ```
 
+**If Q7 = "None":** Do not generate an empty Hard Rules section.
+Instead, apply domain-appropriate minimum defaults based on Q2+Q6:
+- All projects: `"no hardcoded secrets: credentials via environment variables only"`
+- If Q6 involves LLM: `"no fabrication: when data is missing, say so — never invent"`
+- If Q3 involves database: `"no raw SQL in user-facing code: parameterized queries or ORM only"`
+- If Q4 is web-facing: `"input validation on every user-facing endpoint"`
+
+Present these defaults to the user and ask: "이 정도는 기본으로 넣는 걸 추천합니다. 제거할 항목 있으면 말씀해주세요."
+
 ### Q8 — Scope & Timeline
 ```
 How long will this take? Solo or team?
@@ -158,8 +183,8 @@ Generate at project root using this structure:
 - [from Q7 + additional recommendations]
 
 ## Quick Ref
-- Entry: [main entrypoint]
-- Tests: [test command]
+- Entry: [auto-filled from Q2: Python→`python {main}.py`, TS→`npx ts-node src/index.ts`, Go→`go run cmd/{app}/main.go`, Rust→`cargo run`, Java→`./gradlew bootRun`]
+- Tests: [auto-filled from Q2: Python→`pytest tests/ -q`, TS→`npm test`, Go→`go test ./...`, Rust→`cargo test`, Java→`./gradlew test`]
 - [additional references]
 
 ## Secrets Policy
@@ -301,6 +326,23 @@ local.properties
 DerivedData/
 *.ipa
 *.dSYM.zip
+```
+
+---
+
+### 3-5b. Swift .env.example
+
+Generate for Swift projects (same as other languages — Swift apps also call APIs):
+
+```bash
+# === API Keys ===
+# API_KEY=
+
+# === Feature Flags (default OFF) ===
+# FEATURE_NAME_ENABLED=0
+
+# === App Config ===
+# BASE_URL=https://api.example.com
 ```
 
 ---
@@ -505,6 +547,33 @@ Adjustable:
 Approve → files confirmed
 [change request] → apply and regenerate
 ```
+
+**Regeneration rules — which files to regenerate per change:**
+
+| Change | Regenerate |
+|--------|-----------|
+| Language switch (Q2) | .gitignore, .env.example, folder structure, Quick Ref in CLAUDE.md |
+| DB layer change (Q3) | .env.example (DB section), Hard Rules suggestion |
+| LLM toggle (Q6) | .env.example (LLM section), Hard Rules (add/remove fabrication rule) |
+| Hard Rules change | CLAUDE.md only |
+| Timeline/scope change | ROADMAP only |
+| All changes | Re-run Checklist after regeneration |
+
+---
+
+## Scope Boundary
+
+| Does | Does NOT |
+|------|----------|
+| CLAUDE.md 생성 / 업데이트 | 프로덕션 코드 작성 |
+| ROADMAP 생성 | 코드 실행 또는 테스트 실행 |
+| .gitignore / .env.example 생성 | git init 또는 첫 커밋 |
+| 폴더 구조 제안 (텍스트) | 실제 폴더/파일 생성 (CLAUDE.md 제외) |
+| Hard Rules 정의 | AI 에이전트/hooks 설정 (harness-init 사용) |
+| 기존 CLAUDE.md 업데이트 (Option 1) | 기존 테스트 / CI 설정 수정 |
+
+"git 셋업도 해줘" / "첫 커밋 해줘" → 이 스킬 범위 밖.
+AI 에이전트/rules/hooks 설정 → `/harness-init` 사용.
 
 ---
 
