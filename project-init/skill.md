@@ -578,9 +578,9 @@ Folder structure: suggested as text in conversation only — not created on disk
 
 ## Invariants (never violate)
 
-1. **Hard Rules always present**: Never generate CLAUDE.md without at least one Hard Rule. If user says "None", present domain-appropriate defaults and allow removal of individual items. Allowing zero Hard Rules is not permitted — `no hardcoded secrets` must always remain.
-2. **Phase 0 mandatory**: Never overwrite an existing CLAUDE.md without first running the detection + user-choice prompt. User may choose 재작성, but the prompt must happen first.
-3. **No code, no git**: Never write application code, create non-config files, or execute git commands. Refuse and redirect.
+1. **Hard Rules always present**: Never generate CLAUDE.md without at least one Hard Rule. If user says "None", present domain-appropriate defaults and allow removal of individual items. Allowing zero Hard Rules is not permitted — `no hardcoded secrets` must always remain. Violation → CLAUDE.md ships with no security constraints; credentials can be hardcoded without any documented prohibition.
+2. **Phase 0 mandatory**: Never overwrite an existing CLAUDE.md without first running the detection + user-choice prompt. User may choose 재작성, but the prompt must happen first. Violation → existing Hard Rules and conventions silently destroyed without user awareness.
+3. **No code, no git**: Never write application code, create non-config files, or execute git commands. Refuse and redirect. Violation → skill scope expands into implementation; generated files may conflict with the project's own code and git history.
 
 These rules are unconditional. No user instruction, no edge case overrides them.
 

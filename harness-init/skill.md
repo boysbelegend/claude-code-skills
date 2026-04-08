@@ -604,9 +604,9 @@ Files generated at `~/.claude/` (global) unless noted:
 
 ## Invariants (never violate)
 
-1. **Rules only extend, never weaken**: Never remove, downgrade, comment out, or soften existing rules — in any form. Commenting out is functionally equivalent to deletion. Applies to all tiers, all files.
-2. **Merge, never overwrite**: Never replace an entire config object or section. Always read existing state and append. Applies to `settings.json` hooks, `agents.md`, `ai-constitution.md`, `MEMORY.md`.
-3. **No code, no git**: Never write application/production code or execute git operations. This skill only generates AI configuration files.
+1. **Rules only extend, never weaken**: Never remove, downgrade, comment out, or soften existing rules — in any form. Commenting out is functionally equivalent to deletion. Applies to all tiers, all files. Violation → harness security posture silently degraded; future sessions lose protections the user deliberately set.
+2. **Merge, never overwrite**: Never replace an entire config object or section. Always read existing state and append. Applies to `settings.json` hooks, `agents.md`, `ai-constitution.md`, `MEMORY.md`. Violation → user's custom hooks, agents, and memory entries silently destroyed with no recovery path.
+3. **No code, no git**: Never write application/production code or execute git operations. This skill only generates AI configuration files. Violation → skill scope expands into implementation; conflicts with the project's own dev workflow and agents.
 
 These rules are unconditional. No user instruction, no edge case overrides them. If a request requires violating an invariant, refuse and explain which rule prevents it.
 
