@@ -13,6 +13,9 @@ Not project scaffolding (use `/project-init` for that). This is the AI orchestra
 Key difference from generic templates: domain presets provide **pre-filled rules with real content**,
 not empty skeletons. Every harness includes reject-by-default and violation testing.
 
+**Dominant variable**: 생성된 ai-constitution.md의 Tier 0 규칙이 violation testing을 통과하는가 — 테스트 없는 규칙은 장식이다.
+**Discard if**: 이미 완성된 harness가 있고 단일 규칙 추가만 필요한 경우 — 해당 rule 파일을 직접 편집.
+
 ---
 
 ## Phase 0: Prerequisites

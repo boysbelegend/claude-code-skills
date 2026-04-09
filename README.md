@@ -1,25 +1,45 @@
-# claude-code-skills
+# claude-code-skills v3
 
-Set up your project, then set up your AI, then assemble your team. Three skills, zero guesswork.
+Audit what's broken. Scaffold what's missing. Wire the AI. Assemble the team.
 
-> **Scope:** The foundation-to-team pipeline for Claude Code projects.
-> From empty directory to working agent team in three interviews.
+> **Scope:** The full setup pipeline for Claude Code projects — from health check to working agent team.
+> Four skills that build on each other. Each one is useful standalone; the full sequence gives you the most coherent setup.
+
+---
 
 ## Skills
+
+### `/project-check` — Existing Project Health Scan
+
+Read-only audit of an existing project across four dimensions: Infrastructure, Security, Quality, and Harness. Surfaces all gaps ordered by severity with a Score out of 10.
+
+**What it checks:**
+- **Security** (always first): hardcoded secrets, API keys, `.env` not in `.gitignore`
+- **Infrastructure**: `CLAUDE.md`, `Hard Rules`, `Secrets Policy`, `ROADMAP`, `.gitignore`, `.env.example`, `docs/decisions/`
+- **Quality**: test/source file ratio, debug remnants, open work markers (TODO/FIXME)
+- **Harness**: `ai-constitution.md`, `agents.md`, hooks, installed agents, orchestrator type
+
+**Why it matters:**
+Most projects have gaps they don't know about — missing Hard Rules, hardcoded credentials buried in a config, no test infrastructure, or a harness that was never wired up. This skill surfaces all of it in one scan before you make things worse.
+
+**Scale-aware:** A 5-file script won't fail for missing ROADMAP. Warnings are calibrated to project size.
+
+---
 
 ### `/project-init` — New Project Setup Interview
 
 Conversational interview that generates `CLAUDE.md` + `DEVELOPMENT_ROADMAP.md` before you write a single line of code.
 
 **What it does:**
-- Asks 8 focused questions (one at a time) to lock in stack, data layer, deployment, AI/LLM strategy, and hard rules
+- Asks 8 focused questions (one at a time) to lock in stack, data layer, deployment, AI/LLM strategy, and Hard Rules
 - Generates a `CLAUDE.md` with Hard Rules, Secrets Policy, and Dev Conventions tailored to your project
 - Outputs a Phase-structured `DEVELOPMENT_ROADMAP.md`
 - Generates `.gitignore` and `.env.example` matched to your stack
+- Generates `docs/decisions/README.md` for Architecture Decision Records (if scope > 1 month)
 - Suggests the right folder structure for your language (Python, TypeScript, Java/Kotlin, Go, Rust, Swift)
 
 **Why it matters:**
-Most projects skip the "invariants first" step. By the time you add hard rules, the codebase already violates them. This skill forces the conversation upfront.
+Most projects skip the "invariants first" step. By the time you add Hard Rules, the codebase already violates them. This skill forces the conversation upfront.
 
 **Supports:** Python · TypeScript (Next.js / API) · Java · Kotlin (Spring Boot / Android) · Go · Rust · Swift
 
@@ -35,7 +55,7 @@ Sets up the full Claude Code harness layer — rules, hooks, memory, agent routi
 - Sets up memory strategy (session-only → structured with handoff files)
 - Generates lifecycle hooks (SessionStart, PreCompact, Stop)
 - Creates tiered rule hierarchy (immutable hard rules → style preferences)
-- Installs initial skill set
+- Runs violation testing on generated rules before finalizing
 
 **What it generates:**
 ```
@@ -97,21 +117,23 @@ Copy the skill folders into your Claude Code skills directory:
 
 ```bash
 # macOS / Linux
-mkdir -p ~/.claude/skills/{project-init,harness-init,team-init}
-cp project-init/skill.md ~/.claude/skills/project-init/skill.md
-cp harness-init/skill.md ~/.claude/skills/harness-init/skill.md
-cp team-init/skill.md ~/.claude/skills/team-init/skill.md
+mkdir -p ~/.claude/skills/{project-check,project-init,harness-init,team-init}
+cp project-check/SKILL.md ~/.claude/skills/project-check/SKILL.md
+cp project-init/SKILL.md ~/.claude/skills/project-init/SKILL.md
+cp harness-init/SKILL.md ~/.claude/skills/harness-init/SKILL.md
+cp team-init/SKILL.md ~/.claude/skills/team-init/SKILL.md
 
 # Windows
-for %d in (project-init harness-init team-init) do (
+for %d in (project-check project-init harness-init team-init) do (
   mkdir "%USERPROFILE%\.claude\skills\%d" 2>nul
-  copy %d\skill.md "%USERPROFILE%\.claude\skills\%d\skill.md"
+  copy %d\SKILL.md "%USERPROFILE%\.claude\skills\%d\SKILL.md"
 )
 ```
 
 Then invoke in any Claude Code session:
 
 ```
+/project-check      # audit an existing project (read-only)
 /project-init       # scaffold a new project
 /harness-init       # set up Claude Code agent infrastructure
 /team-init          # assemble your coding agent team
@@ -121,47 +143,57 @@ Then invoke in any Claude Code session:
 
 ## Recommended Flow
 
+**Existing project — start here:**
 ```
-New project idea
-  │
-  ├─ /project-init     → CLAUDE.md + ROADMAP + .gitignore + .env.example
-  │
-  ├─ /harness-init     → rules/ + hooks + memory/ + agent routing
-  │
-  └─ /team-init        → orchestrator + code-reviewer + verification + ...
+/project-check → Score N/10 + gap list
+  ├─ gaps found → /project-init (Update mode) + /harness-init + /team-init
+  └─ score ≥ 8  → only fix the ⚠ items
+```
+
+**New project — start here:**
+```
+/project-init    → CLAUDE.md + ROADMAP + .gitignore + .env.example
+/harness-init    → rules/ + hooks + memory/ + agent routing
+/team-init       → orchestrator + code-reviewer + verification + ...
+/project-check   → verify everything landed correctly
 ```
 
 Run them in order. Each builds on the previous:
 - `/project-init` establishes the project foundation
 - `/harness-init` layers on the AI rules and infrastructure
 - `/team-init` assembles the agent team that operates within those rules
+- `/project-check` audits the result — or diagnoses an existing project before you start
 
-Each skill works standalone, but the full pipeline gives you the most coherent setup.
-
-> **Standalone use:** `/harness-init` works without `/project-init` — it will write Hard Rules directly into `ai-constitution.md`. If you later run `/project-init`, the generated `CLAUDE.md` will check for `ai-constitution.md` and insert a reference link instead of duplicating rules. But if you run them in reverse order, manually remove the Hard Rules section from `CLAUDE.md` and replace with a reference link.
+> **Standalone use:** Each skill works independently. `/harness-init` works without `/project-init` — it will write Hard Rules directly into `ai-constitution.md`. If you later run `/project-init`, the generated `CLAUDE.md` will check for `ai-constitution.md` and insert a reference link instead of duplicating rules.
 
 ---
 
-## Principles Embedded
+## v3 Design Principles
+
+Every skill in v3 encodes three things:
+
+- **Dominant variable** — the single factor that most determines whether the skill output is useful. Named explicitly so you know what to optimize for.
+- **Discard condition** — when NOT to use the skill. A diagnostic that runs itself when it shouldn't is worse than useless.
+- **Invariants with consequences** — rules that cannot be overridden, with explicit failure mode documented for each one.
 
 These came from painful experience on a large production system:
 
 - **CLAUDE.md before code** — re-explaining context every session is expensive
 - **Hard Rules from day one** — retrofitting them means existing code may already be in violation
+- **Security findings never buried** — a credential warning hidden below infrastructure gaps gets ignored
+- **Scale-aware warnings** — a 5-file script failing "no ROADMAP" is noise, not signal
 - **Harness before agents** — the orchestration layer determines session productivity
 - **Orchestrator catches drift** — auto-correct twice, then escalate. Don't waste human attention on recoverable issues
 - **Skip existing agents** — the user's customizations are sacred, never overwrite
 - **Feature flags default OFF** — unfinished features affecting default behavior makes debugging painful
 - **Merge, never overwrite** — destroying existing settings.json configs is catastrophic
 - **Tier 0 rules are immutable** — no agent or skill can override them
-- **Start with fewer review gates** — add them after the first bug that would have been caught
-- **Append-only logs** — overwriting logs destroys the audit trail
-- **Explicit secrets policy** — one `.env` commit compromises even private repos
 
 ---
 
 ## Roadmap
 
+- [x] `/project-check` — health scan for existing projects
 - [x] `/project-init` — project scaffolding
 - [x] `/harness-init` — agent infrastructure setup
 - [x] `/team-init` — agent team assembly

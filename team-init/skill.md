@@ -18,6 +18,9 @@ This is the third step in the setup trilogy:
 Key difference from manual setup: the orchestrator includes **drift detection and correction loop** --
 when implementation diverges from the plan, it catches it automatically instead of requiring human intervention.
 
+**Dominant variable**: 오케스트레이터가 게이트 순서를 강제하고 플랜 드리프트를 감지하는가 — 없으면 팀은 todo 리스트에 불과하다.
+**Discard if**: 에이전트 1-2개만 필요한 스크립트급 프로젝트, 또는 harness-init 미완료 상태.
+
 ---
 
 ## Phase 0: Prerequisites
@@ -90,7 +93,7 @@ What domain is this team working in?
 
 1. Trading / Finance
    code-reviewer checks: no fabrication, reject-by-default violations, paper-only breach
-   orchestrator watches: signal integrity, data staleness, missing horizon tags
+   orchestrator watches: signal integrity, data staleness, missing timeframe tags
 
 2. Web Application
    code-reviewer checks: XSS, SQL injection, auth bypass, secrets exposure
@@ -673,7 +676,7 @@ code_reviewer_checks:
 orchestrator_watches:
   - "Signal integrity: trading decisions require both technical AND fundamental validation"
   - "Data staleness: market data older than session date -> warn"
-  - "Missing horizon: decision without timeframe -> block"
+  - "Missing timeframe: trading decision without holding period tag -> block"
 
 verification_extras:
   - "No direct data-source API calls from UI layer (DB-only reads)"

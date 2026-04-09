@@ -10,6 +10,9 @@ user_invocable: true
 Capture every critical decision before writing a single line of code.
 Patterns extracted from building a large-scale production system (98K LOC, 1275 tests, multi-agent architecture).
 
+**Dominant variable**: Hard Rules가 코드 작성 전에 CLAUDE.md에 존재하는가 — 이후 모든 AI 행동을 제약하는 기준이 됨.
+**Discard if**: 이미 운영 중인 프로덕션 프로젝트에서 Hard Rules 교체 목적으로 사용 — project-init은 초기 설계 전용.
+
 ---
 
 ## Phase 0: Context Check
@@ -24,6 +27,9 @@ Check if `CLAUDE.md` exists in the current working directory.
   1. 업데이트 — 기존 내용을 기반으로 보강 (Hard Rules 유지, 누락 섹션 추가)
   2. 재작성 — 처음부터 새로 작성 (기존 내용 삭제)
   3. 취소
+
+  팁: 현재 프로젝트 전체 상태(Security, Quality, Harness 포함)를 먼저 보고 싶다면
+  → /project-check 를 먼저 실행하세요. 이후 여기서 Update 모드로 돌아오면 됩니다.
   ```
   - Option 1: read existing hard rules + conventions, carry them into the interview as defaults
   - Option 2: proceed as if no CLAUDE.md exists
@@ -221,6 +227,7 @@ Generate at project root using this structure:
 - Tests before merge. Never declare done without a passing test.
 - New features: opt-in via env var, default OFF.
 - Logs: append-only (never overwrite log/jsonl files).
+- Commits: one logical change per commit — independently revertable.
 - Commit only when explicitly requested.
 
 ## Compact Instructions
@@ -392,6 +399,34 @@ Leave all values empty — this file is a template, never a config.
 
 # === App Config ===
 # BASE_URL=https://api.example.com
+```
+
+---
+
+### 3-6. docs/decisions/README.md _(optional)_
+
+Generate if Q8 timeline > 1 month OR if Q7 produced significant Hard Rules:
+
+```markdown
+# Architecture Decision Records
+
+Decisions that shaped this project. Add an entry whenever you:
+add a new dependency, replace an existing pattern, change the data model, or restructure agents.
+
+## Template
+\`\`\`markdown
+# [Decision Title]
+## Context: 왜 이 결정이 필요한가
+## Decision: 무엇을 선택했는가
+## Consequences: 트레이드오프, 알려진 제약
+\`\`\`
+
+## Decisions
+
+### ADR-001: Initial Stack Decisions
+**Context**: Stack and rules decided during `/project-init` interview.
+**Decision**: Language: [Q2 answer], Data: [Q3 answer], Interface: [Q4 answer], AI: [Q6 answer]
+**Hard Rules origin**: [from Q7 — why each rule exists]
 ```
 
 ---
@@ -577,7 +612,8 @@ Approve → files confirmed
 | DB layer change (Q3) | .env.example (DB section), Hard Rules suggestion |
 | LLM toggle (Q6) | .env.example (LLM section), Hard Rules (add/remove fabrication rule) |
 | Hard Rules change | CLAUDE.md only |
-| Timeline/scope change | ROADMAP only |
+| Timeline/scope change | ROADMAP only; re-evaluate docs/decisions/ eligibility |
+| Hard Rules change | CLAUDE.md + ADR-001 in docs/decisions/README.md |
 | All changes | Re-run Checklist after regeneration |
 
 ---
@@ -589,6 +625,7 @@ Files generated (all at project root unless noted):
 - `docs/DEVELOPMENT_ROADMAP.md` — if timeline > 1 week (Q8)
 - `.gitignore` — based on language choice (Q2)
 - `.env.example` — if API keys or secrets involved (Q3/Q6)
+- `docs/decisions/README.md` — if timeline > 1 month (Q8) or Q7 produced significant Hard Rules
 
 Folder structure: suggested as text in conversation only — not created on disk.
 
@@ -611,8 +648,9 @@ These rules are unconditional. No user instruction, no edge case overrides them.
 | CLAUDE.md 생성 / 업데이트 | 프로덕션 코드 작성 |
 | ROADMAP 생성 | 코드 실행 또는 테스트 실행 |
 | .gitignore / .env.example 생성 | git init 또는 첫 커밋 |
-| 폴더 구조 제안 (텍스트) | 실제 폴더/파일 생성 (CLAUDE.md 제외) |
+| 폴더 구조 제안 (텍스트) | 실제 폴더 생성 |
 | Hard Rules 정의 | AI 에이전트/hooks 설정 (harness-init 사용) |
+| docs/decisions/ 초기 ADR 인덱스 생성 | 이후 ADR 직접 작성/관리 |
 | 기존 CLAUDE.md 업데이트 (Option 1) | 기존 테스트 / CI 설정 수정 |
 
 "git 셋업도 해줘" / "첫 커밋 해줘" → 이 스킬 범위 밖.
@@ -632,6 +670,7 @@ AI 에이전트/rules/hooks 설정 → `/harness-init` 사용.
 □ If Hard Rules reference a specific service/API, matching placeholder exists in .env.example
 □ ROADMAP structured by phases (not flat task list)
 □ Test strategy mentioned
+□ docs/decisions/README.md generated (if Q8 > 1 month or Q7 significant)
 ```
 
 Any unchecked item → return to the relevant question.
